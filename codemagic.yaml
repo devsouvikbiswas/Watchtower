@@ -1,0 +1,33 @@
+workflows:
+  android-apk:
+    name: Watchtower Android APK
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      groups:
+        - watchtower_secrets
+    scripts:
+      - name: Generate .env from secure environment variables
+        script: |
+          set -e
+          cat > "$CM_BUILD_DIR/.env" <<EOF
+          GEMINI_API_KEY=${GEMINI_API_KEY}
+          GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
+          GOOGLE_SAFE_BROWSING=${GOOGLE_SAFE_BROWSING}
+          EOF
+          echo ".env created (values hidden)."
+      - name: Fetch Flutter packages
+        script: flutter pub get
+      - name: Analyze (only hard errors fail; pre-existing lints/warnings don't)
+        script: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build release APK
+        script: flutter build apk --release
+    artifacts:
+      - build/**/outputs/**/*.apk
+    publishing:
+      email:
+        recipients:
+          - capitalcoderzz@gmail.com
+        notify:
+          success: true
+          failure: true
