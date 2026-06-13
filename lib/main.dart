@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/contact_search.dart';
 import 'package:app_links/app_links.dart';
 import 'screens/scan_link.dart';
+import 'screens/scam_detector.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,6 +68,7 @@ class _MyAppState extends State<MyApp> {
             const ScanLinkPage(), // Assuming ScanLinkScreen is the widget for /scan-link
         '/contact-search': (context) =>
             const ContactSearchScreen(), // Assuming ContactSearchScreen is the widget for /contact-search
+        '/scam-detector': (context) => const ScamDetectorPage(),
         // Add other routes as needed
       },
     );
@@ -80,6 +82,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final features = [
+      {'icon': Icons.smart_toy, 'label': 'Scam Detector'},
       {'icon': Icons.link, 'label': 'Scan Link'},
       {'icon': Icons.call, 'label': 'Call Monitor'},
       {'icon': Icons.phone, 'label': 'Number Checker'},
@@ -132,6 +135,8 @@ class FeatureCard extends StatelessWidget {
       onTap: () {
         if (label == 'Scan Link') {
           Navigator.pushNamed(context, '/scan-link');
+        } else if (label == 'Scam Detector') {
+          Navigator.pushNamed(context, '/scam-detector');
         } else if (label == 'Number Checker') {
           Navigator.pushNamed(context, '/contact-search');
         } else {
