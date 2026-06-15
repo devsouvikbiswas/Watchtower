@@ -4,6 +4,7 @@ import 'screens/contact_search.dart';
 import 'package:app_links/app_links.dart';
 import 'screens/scan_link.dart';
 import 'screens/scam_detector.dart';
+import 'screens/community_reports.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,6 +70,7 @@ class _MyAppState extends State<MyApp> {
         '/contact-search': (context) =>
             const ContactSearchScreen(), // Assuming ContactSearchScreen is the widget for /contact-search
         '/scam-detector': (context) => const ScamDetectorPage(),
+        '/community-db': (context) => const CommunityReportsPage(),
         // Add other routes as needed
       },
     );
@@ -84,6 +86,7 @@ class MyHomePage extends StatelessWidget {
     final features = [
       {'icon': Icons.smart_toy, 'label': 'Scam Detector'},
       {'icon': Icons.link, 'label': 'Scan Link'},
+      {'icon': Icons.groups, 'label': 'Community DB'},
       {'icon': Icons.call, 'label': 'Call Monitor'},
       {'icon': Icons.phone, 'label': 'Number Checker'},
       {'icon': Icons.history, 'label': 'Logs'},
@@ -137,6 +140,8 @@ class FeatureCard extends StatelessWidget {
           Navigator.pushNamed(context, '/scan-link');
         } else if (label == 'Scam Detector') {
           Navigator.pushNamed(context, '/scam-detector');
+        } else if (label == 'Community DB') {
+          Navigator.pushNamed(context, '/community-db');
         } else if (label == 'Number Checker') {
           Navigator.pushNamed(context, '/contact-search');
         } else {
