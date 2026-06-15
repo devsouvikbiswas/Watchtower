@@ -112,7 +112,7 @@ Be decisive but fair: do not flag ordinary personal or transactional messages.
     if (_apiKey.isEmpty) {
       throw const ScamDetectorException(
         'AI key is not configured. Set GEMINI_API_KEY in the build '
-        'environment (see SETUP_GUIDE.md).',
+        'environment (the Codemagic watchtower_secrets variable group).',
       );
     }
 
