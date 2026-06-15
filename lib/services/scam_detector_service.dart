@@ -192,9 +192,13 @@ Be decisive but fair: do not flag ordinary personal or transactional messages.
     }
 
     final parts = candidates.first?['content']?['parts'];
-    final rawText = (parts is List && parts.isNotEmpty)
-        ? parts.first?['text']?.toString()
-        : null;
+    String? rawText;
+    if (parts is List && parts.isNotEmpty) {
+      final firstPart = parts.first;
+      if (firstPart is Map) {
+        rawText = firstPart['text']?.toString();
+      }
+    }
     if (rawText == null || rawText.trim().isEmpty) {
       throw const ScamDetectorException(
         'The AI service returned an empty result. Please try again.',
