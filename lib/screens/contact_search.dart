@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import for FilteringTextInputFormatter
 import '../services/wb_police_scraper_service.dart';
+import '../services/community_db_service.dart';
 
 class ContactSearchScreen extends StatefulWidget {
   const ContactSearchScreen({super.key});
@@ -24,6 +25,9 @@ class _ContactSearchScreenState extends State<ContactSearchScreen> {
   String _searchResult = ''; // Message to display search outcome
   Map<String, dynamic>?
   _foundContact; // Stores the found contact details, now dynamic
+  // How many people have reported the searched number in the shared community
+  // database (null = not looked up / unavailable).
+  int? _communityCount;
 
   @override
   void initState() {
@@ -135,6 +139,7 @@ class _ContactSearchScreenState extends State<ContactSearchScreen> {
       _isLoading = true; // Set loading state for search
       _searchResult = ''; // Clear previous results
       _foundContact = null;
+      _communityCount = null;
     });
 
     try {
@@ -148,6 +153,17 @@ class _ContactSearchScreenState extends State<ContactSearchScreen> {
             ? 'Match found!'
             : 'No match found in database';
       });
+
+      // Best-effort lookup in the shared community database. This never breaks
+      // the local search: any failure (or missing config) is silently ignored.
+      try {
+        final report = await CommunityDbService.lookupNumber(phoneNumber);
+        if (mounted) {
+          setState(() => _communityCount = report?.reportCount);
+        }
+      } catch (_) {
+        // Community DB unavailable — keep showing local results only.
+      }
     } catch (e) {
       setState(() {
         _searchResult = 'Search error: $e'; // Display search error
@@ -191,6 +207,16 @@ class _ContactSearchScreenState extends State<ContactSearchScreen> {
       };
 
       await _scraper.addOrUpdateContact(scammerData);
+
+      // Also share the flag with the shared community database so other users
+      // are warned. Best-effort: a failure must not break local flagging.
+      try {
+        await CommunityDbService.reportNumber(phoneNumber);
+        final report = await CommunityDbService.lookupNumber(phoneNumber);
+        if (mounted) setState(() => _communityCount = report?.reportCount);
+      } catch (_) {
+        // Community DB unavailable — the local flag still succeeded.
+      }
 
       setState(() {
         _searchResult = 'Number $phoneNumber flagged as scammer successfully!';
@@ -326,6 +352,35 @@ class _ContactSearchScreenState extends State<ContactSearchScreen> {
                       : FontWeight.normal,
                 ),
               ),
+              if (_communityCount != null && _communityCount! > 0) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade900.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.shade700),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.groups, color: Colors.redAccent),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '⚠️ Reported as scam by $_communityCount '
+                          '${_communityCount == 1 ? 'person' : 'people'} '
+                          'in the community.',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               if (_foundContact != null) ...[
                 // Check only for null here
                 const SizedBox(height: 20),
