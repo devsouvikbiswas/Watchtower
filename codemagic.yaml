@@ -14,6 +14,8 @@ workflows:
           GEMINI_API_KEY=${GEMINI_API_KEY}
           GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
           GOOGLE_SAFE_BROWSING=${GOOGLE_SAFE_BROWSING}
+          FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+          FIREBASE_API_KEY=${FIREBASE_API_KEY}
           EOF
           echo ".env created (values hidden)."
       - name: Fetch Flutter packages
